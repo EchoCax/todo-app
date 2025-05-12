@@ -20,15 +20,6 @@ export function getTodos(id){
         }
     })
 }
-export function getTodo(id){
-    return request({
-        method:"GET",
-        url:'/get/todo',
-        params:{
-            id:id
-        }
-    })
-}
 // 删除列表
 export function deleteTodo(id){
     const data = {
