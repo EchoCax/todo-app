@@ -43,7 +43,6 @@ export default {
       if (id === 0){
         alert("输入删除的id")
       }
-
       deleteTodo(this.removeTodoId).then(res=>{
         console.log(res)
         if(res.code === 200){
@@ -130,9 +129,17 @@ export default {
       <!--删除-->
       <div class="deleteTodo">
         <input type="text">
+        <button @click="removeTodoId">删除</button>
       </div>
       <!--查询-->
-      <!--改变-->
+      <div class="selectTodo">
+        <input type="text" v-model="getTodoLists" placeholder="请输入要查询的待办......">
+      </div>
+      <!--修改-->
+      <div class="updateTodo">
+        <input type="text" v-model="updateContent">
+        </input>
+      </div>
 
     </div>
   </div>
@@ -153,5 +160,28 @@ body{
   flex-direction: column;
 }.title{
   background: white;
+ }
+ /* 主体盒子 */
+ .todo-main{
+   background-color: white;
+ }
+ /* todo 标题 */
+ .title{
+   background: #21ff79;
+ }
+ .todo-text{
+   background: #f5f14f;
+ }
+ .addTodo{
+   background: #21ff79;
+ }
+ .deleteTodo{
+   background: #f44336;
+ }
+ .selectTodo{
+   background: #f44336;
+ }
+ .updateTodo{
+   background: #f44336;
  }
 </style>
