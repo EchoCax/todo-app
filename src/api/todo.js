@@ -31,3 +31,25 @@ export function deleteTodo(id){
         data: data
     })
 }
+// 增加todo
+export function addTodo(id){
+    const data = {
+        id
+    }
+    return request({
+        method:"POST",
+        url:'/add/todo',
+        data:data
+    })
+}
+// 修改todo
+export function updateTodo(id){
+    const data = {
+        id:id
+    }
+    return request({
+        method:"PUT",
+        url:'/update/todo',
+        data:data
+    })
+}
