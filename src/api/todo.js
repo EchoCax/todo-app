@@ -43,7 +43,7 @@ export function addTodo(id){
     })
 }
 // 修改todo
-export function updateTodo(id){
+export function updateTodoId(id){
     const data = {
         id:id
     }
