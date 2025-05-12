@@ -1,52 +1,53 @@
-import request  from "@/utils/request.js";
+import request from "@/utils/request.js";
 
-// 获取到单个todo
-export function getTodo(id){
+// 获取单个 todo
+export function getTodo(id) {
     return request({
-        method:"GET",
-        url:'/get/todo',
-        params:{
-            id
-        }
-    })
+        method: "GET",
+        url: '/get/todo',
+        params: { id }
+    });
 }
-// 获取批量的todo
-export function getTodos(){
+
+// 获取所有 todos
+export function getTodos() {
     return request({
-        method:"GET",
-        url:'/get/todos',
-    })
+        method: "GET",
+        url: '/get/todos'
+    });
 }
-// 删除列表
-export function deleteTodo(id){
+
+// 删除 todo
+export function deleteTodo(id) {
     return request({
-        method: "delete",
+        method: "DELETE",
         url: '/delete/todo',
-        params:{
-            id
-        }
-    })
+        params: { id }
+    });
 }
-// 增加todo
-export function addTodo(content){
-    const data = {
-        content: content
-    }
+
+// 添加 todo
+export function addTodo(todo) {
+    // todo 是一个对象：{ id, text, completed }
     return request({
-        method:"POST",
-        url:'/add/todo',
-        data:{
-            content
+        method: "POST",
+        url: '/add/todo',
+        data: {
+            todo
         }
-    })
+    });
 }
-// 修改todo
-export function updateTodo(id){
+
+// 修改 todo
+export function updateTodo(todo) {
+    // todo 是一个对象：{ id, text, completed }
     return request({
-        method:"PUT",
-        url:'/update/todo',
-        data:{
-            id,content
+        method: "PUT",
+        url: '/update/todo',
+        data: {
+            id:todo.id,
+            text:todo.text,
+            complete:todo.completed
         }
     });
 }

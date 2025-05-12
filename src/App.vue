@@ -1,187 +1,218 @@
-<script>
-// 这里将他们引入进来
-import {deleteTodo,getTodo,getTodos,addTodo,updateTodo} from "@/api/todo.js";
-import {computed} from "vue";
-
-export default {
-  name: "App",
-  components: {},
-  data() {
-    return {
-      TodoId:1, // 当前想查询的todo
-      Todo:{}, // 当前查询的todo
-      TodoIsNull:false, // 判断当前获取到的数据是否为空
-      removeTodoId:0,// 删除要删除的todo id
-      todoList:[], // 所有的todo
-      addTodoContent:'',// 添加todo的内容
-      updateTodoId:0, // 修改todo
-      updateContent:''// 修改后的文本
-  }
-},
-  created(){
-    // 创建组件的时候去调用getTodo方法，获取todo数据
-    this.getTodoList();
-  },
-  methods: {
-    getTodo(){
-      getTodo(this.TodoId).then(res=>{
-        if(res.code === 200){
-          this.TodoId = res.data
-          this.TodoIdIsNull = false
-        }
-        else{
-          this.TodoIsNull = true
-        }
-      }).catch(err=>{
-        console.log('当前响应错误：')
-        console.log(err)
-      })
-    },
-
-    removeTodo(){
-      const id = this.removeTodoId;
-      if (id === 0){
-        alert("输入删除的id")
-      }
-      deleteTodo(this.removeTodoId).then(res=>{
-        console.log(res)
-        if(res.code === 200){
-          location.reload();
-          alert("删除成功")
-        }
-      }).catch(err=>{
-        console.log('删除失败',err)
-      })
-    },
-    // 添加todo
-    addNewTodo(){
-      // 先判断一下是否输入了内容
-      if(!this.addTodoContent){
-        alert("请输入待办事项")
-        return;
-      }
-      addTodo(this.addTodoContent).then(res=>{
-        if(res.code === 200){
-          alert('添加成功!')
-          this.addTodoContent = '' // 传值进去
-          this.getTodoList(); // 重新获取一下列表
-        }
-      }).catch(err=>{
-        console.log('添加失败',err)
-      })
-    },
-    // 修改todo
-    updateTodo(){
-      if(!this.updateTodoId || !this.updateTodoId){
-        alert("请输入修改的todoId 和 内容")
-        return;
-      }
-      updateTodo(this.updateTodoId,this.updateContent).then(res=>{
-        if(res.code === 200){
-          alert('修改成功!')
-          this.addTodoContent = ''
-          this.updateTodoId = 0;
-          this.getTodoList();
-        }
-      }).catch(err=>{
-        console.log('修改失败:',err)
-      })
-    },
-    // 获取todo列表
-    getTodoList(){
-      getTodos().then(res=>{
-        if(res.code === 200){
-          this.todoList = res.data
-        }
-      }).catch(err=>{
-        console.log('获取列表失败',err)
-      })
-    }
-  },
-  computed:{
-    getTodoLists(){
-      getTodos().then(res=>{
-        if(res.code === 200){
-          this.todoList = res.data
-        }
-      }).catch(err=>{
-        console.log(err)
-      })
-    }
-  },
-}
-</script>
-
 <template>
   <div class="todo-main">
-    <!--标题-->
     <div class="title">
-      <h1>todo 待办清单</h1>
+      <h1>Todo 待办清单</h1>
     </div>
 
-    <!--文本-->
     <div class="todo-text">
-      <!--增加-->
+      <!-- 增加 -->
       <div class="addTodo">
-        <input type="text" v-model="addTodoContent" placeholder="输入新建的待办:">
+        <input type="text" v-model="addTodoContent" placeholder="输入新建的待办" />
         <button @click="addNewTodo">添加</button>
       </div>
-      <!--删除-->
+
+      <!-- 删除 -->
       <div class="deleteTodo">
-        <input type="text">
-        <button @click="removeTodoId">删除</button>
-      </div>
-      <!--查询-->
-      <div class="selectTodo">
-        <input type="text" v-model="getTodoLists" placeholder="请输入要查询的待办......">
-      </div>
-      <!--修改-->
-      <div class="updateTodo">
-        <input type="text" v-model="updateContent">
-        </input>
+        <input type="text" v-model="removeTodoId" placeholder="输入要删除的ID" />
+        <button @click="removeTodo">删除</button>
       </div>
 
+      <!-- 查询 -->
+      <div class="selectTodo">
+        <input type="text" v-model="TodoId" placeholder="输入要查询的ID" />
+        <button @click="getTodo">查询</button>
+        <div v-if="Todo.id">
+          <p>查询到：{{ Todo.id }} - {{ Todo.text }} - {{ Todo.completed ? '完成' : '未完成' }}</p>
+        </div>
+        <div v-else-if="TodoIsNull">
+          <p>没找到</p>
+        </div>
+      </div>
+
+      <!-- 修改 -->
+      <div class="updateTodo">
+        <input type="text" v-model="updateTodoId" placeholder="输入要修改的ID" />
+        <input type="text" v-model="updateContent" placeholder="输入修改内容" />
+        <button @click="updateTodoItem">修改</button>
+      </div>
+
+      <!-- 显示所有 todo -->
+      <div class="todoList">
+        <h2>获取全部待办：</h2>
+        <ul>
+          <li v-for="todo in todoList" :key="todo.id">
+            {{ todo.id }} - {{ todo.text }} - {{ todo.completed ? '完成' : '未完成' }}
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
 
+<script>
+import { deleteTodo, getTodo, getTodos, addTodo, updateTodo } from "@/api/todo.js";
+
+export default {
+  name: "App",
+  data() {
+    return {
+      TodoId: '',
+      Todo: {},
+      TodoIsNull: false,
+      removeTodoId: '',
+      addTodoText: '',
+      updateTodoId: '',
+      updateContent: '',
+      todoList: [],
+      addTodoContent:''
+    };
+  },
+  created() {
+    this.getTodoList();
+  },
+  methods: {
+    getTodo() {
+      if (!this.TodoId) return alert("请输入查询 ID");
+      getTodo(this.TodoId).then(res => {
+        if (res.code === 200 && res.data) {
+          this.Todo = res.data;
+          this.TodoIsNull = false;
+        } else {
+          this.Todo = {};
+          this.TodoIsNull = true;
+        }
+      }).catch(err => {
+        console.log('查询失败:', err);
+      });
+    },
+
+    removeTodo() {
+      if (!this.removeTodoId) return alert("输入要删除的 ID");
+      deleteTodo(this.removeTodoId).then(res => {
+        if (res.code === 200) {
+          alert("删除成功");
+          this.getTodoList();
+        }
+      }).catch(err => {
+        console.log('删除失败:', err);
+      });
+    },
+
+    addNewTodo() {
+      if (!this.addTodoContent) {
+        alert("请输入待办事项");
+        return;
+      }
+
+      const newTodo = {
+        id: Date.now(),              // 随便生成一个唯一 ID
+        text: this.addTodoContent,  // 用户输入内容
+        completed: false            // 默认未完成
+      };
+
+      addTodo(newTodo).then(res => {
+        if (res.code === 200) {
+          alert('添加成功!');
+          this.addTodoContent = '';
+          this.getTodoList();
+        }
+      }).catch(err => {
+        console.error('添加失败:', err);
+      });
+    },
+
+    updateTodoItem() {
+      if (!this.updateTodoId || !this.updateContent) return alert("请输入要修改的 ID 和内容");
+      const updated = {
+        id: Number(this.updateTodoId),
+        text: this.updateContent,
+        completed: false
+      };
+      updateTodo(updated).then(res => {
+        if (res.code === 200) {
+          alert("修改成功");
+          this.updateTodoId = '';
+          this.updateContent = '';
+          this.getTodoList();
+        }
+      }).catch(err => {
+        console.log('修改失败:', err);
+      });
+    },
+
+    getTodoList() {
+      getTodos().then(res => {
+        if (res.code === 200) {
+          this.todoList = res.data;
+        }
+      }).catch(err => {
+        console.log('获取列表失败:', err);
+      });
+    }
+  }
+};
+</script>
+
 <style>
-*{
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
-.todo-main{
-  background: linear-gradient(to left, #21ff79, #f5f14f);
-}
-body{
+body {
   display: flex;
-  align-items: center;
   justify-content: center;
-  flex-direction: column;
-}.title{
+  background-color: #f5f5f5;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+.todo-main {
+  width: 600px;
   background: white;
- }
- /* 主体盒子 */
- .todo-main{
-   background-color: white;
- }
- /* todo 标题 */
- .title{
-   background: #21ff79;
- }
- .todo-text{
-   background: #f5f14f;
- }
- .addTodo{
-   background: #21ff79;
- }
- .deleteTodo{
-   background: #f44336;
- }
- .selectTodo{
-   background: #f44336;
- }
- .updateTodo{
-   background: #f44336;
- }
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.title {
+  background: #21ff79;
+  padding: 15px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+.todo-text > div {
+  padding: 15px;
+  margin-bottom: 10px;
+}
+.addTodo {
+  background: #e0ffe0;
+}
+.deleteTodo,
+.selectTodo,
+.updateTodo {
+  background: #ffe0e0;
+}
+.todoList {
+  background: #f0f0f0;
+}
+.todoList ul {
+  list-style: none;
+  padding-left: 20px;
+}
+input {
+  margin-right: 10px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+button {
+  padding: 6px 12px;
+  background: #21a0ff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background: #0f78d4;
+}
 </style>
